@@ -185,6 +185,7 @@ begin
 end// 
 create procedure insertarFilaFormatos(descripcion varchar(50))
 begin
+	-- Aca declaro la variable 'queryDinamica' y le asigno el valor de la query que debemos ejecutar, incluyendo el parametro de la descripcion
 	set @queryDinamica = concat("insert into tournament_formats (format_description) values ('", descripcion, "')");
     -- Aca preparo y ejecuto el 'prepared statement' para que me devuelva la respuesta de la query
     prepare stmt3 from @queryDinamica;
