@@ -173,6 +173,7 @@ return (
 );
 
 delimiter //
+
 create procedure ordenarPartidosPorColumna(in columna varchar(30), in orden varchar(5))
 begin
 	-- Aca declaro la variable 'queryDinamica' y le asigno el valor de la query que debemos ejecutar, incluyendo los parametros dinamicos de columna y orden
@@ -183,6 +184,7 @@ begin
     -- Finalmente elimino el statement para que no falle al usar el procedure por segunda vez
     deallocate prepare stmt3;
 end// 
+
 create procedure insertarFilaFormatos(descripcion varchar(50))
 begin
 	-- Aca declaro la variable 'queryDinamica' y le asigno el valor de la query que debemos ejecutar, incluyendo el parametro de la descripcion
@@ -193,4 +195,59 @@ begin
     -- Finalmente elimino el statement para que no falle al usar el procedure por segunda vez
     deallocate prepare stmt3;
 end//
+
+-- Este trigger sirve para que, si el partido no tuvo penales, el resultado de los penales tenga que ser si o si null
+create trigger checkear_insert_matches
+before insert on matches
+for each row
+begin
+	if new.penalties = 0 and new.res_penalties is not null then
+		signal sqlstate '45000' set message_text = 'Si la columna penalties es false, la columna res_penalties debe ser null';
+    end if;
+end//
+
+-- Aca creo la tabla en donde voy a guardar los logs de la tabla matches
+create table log_matches (
+	id_match int not null,
+    log_user varchar(40) not null,
+    log_date date not null,
+    log_time time not null
+)//
+
+-- Este trigger sirve guardar en la tabla log_matches los logs de cada insert en la tabla matches
+create trigger trigger_reporte_matches
+after insert on matches
+for each row
+begin
+	insert into log_matches values
+    (new.id_match, user(), current_date(), current_time());
+end//
+
+-- Este trigger sirve para evitar que la fecha de inicio de un torneo sea posterior a su fecha de finalizacion
+create trigger checkear_insert_tournaments
+before insert on tournaments
+for each row
+begin
+	if new.day_from > new.day_tru then
+		signal sqlstate '45000' set message_text = 'La columna day_from no puede ser posterior a la columna day_tru';
+    end if;
+end//
+
+-- Aca creo la tabla en donde voy a guardar los logs de la tabla tournaments
+create table log_tournaments (
+	id_tournament int not null,
+    log_user varchar(40) not null,
+    log_date date not null,
+    log_time time not null
+)//
+
+-- Este trigger sirve guardar en la tabla log_tournaments los logs de cada insert en la tabla tournaments
+create trigger trigger_reporte_tournaments
+after insert on tournaments
+for each row
+begin
+	insert into log_tournaments values
+    (new.id_tournament, user(), current_date(), current_time());
+end//
+
 delimiter ;
