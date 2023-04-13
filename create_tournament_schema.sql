@@ -251,3 +251,11 @@ begin
 end//
 
 delimiter ;
+
+-- El usuario 'lector' tiene permisos unicamente para usar el comando 'select'
+create user 'lector'@'localhost'; 
+grant select on *.* to 'lector'@'localhost';
+
+-- El usuario 'admin' tiene permisos para usar los comandos 'select', 'insert' y 'update'
+create user 'admin'@'localhost';
+grant select, insert, update on *.* to 'admin'@'localhost';
