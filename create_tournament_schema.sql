@@ -259,3 +259,29 @@ grant select on *.* to 'lector'@'localhost';
 -- El usuario 'admin' tiene permisos para usar los comandos 'select', 'insert' y 'update'
 create user 'admin'@'localhost';
 grant select, insert, update on *.* to 'admin'@'localhost';
+
+set autocommit = 0;
+
+start transaction;
+delete from matches
+where id_match > 4;
+-- rollback;
+commit;
+
+start transaction;
+insert into players 
+values 
+(32324637, 'Gustavo', 'Galindez', 1),
+(12363526, 'Henry', 'Martinez', 2),
+(65474635, 'Gonzalo', 'Guedes', 3),
+(12463527, 'Fernando', 'Cavenaghi', 4);
+savepoint primer_lote;
+insert into players 
+values
+(53750987, 'Vito', 'Gregorio', 1),
+(43746352, 'Neyen', 'Vrhovski', 2),
+(12463546, 'Tomas', 'Fernandez', 3),
+(32645635, 'Sebastian', 'Biglia', 4);
+savepoint segundo_lote;
+-- rollback to primer_lote;
+commit;
